@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Cart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #222;
+            color: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        nav li {
+            padding: 10px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: #333;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #333;
+            min-width: 160px;
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .cart-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        @keyframes fadeAndShrink {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+
+        .fade-and-shrink {
+            animation: fadeAndShrink 0.5s ease forwards;
+        }
+
+        .delete-button {
+            background-color: #333333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .favorite-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .favorite-item img {
+            max-width: 100px;
+            height: auto;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .favorite-item h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .favorite-item p {
+            margin: 5px 0;
+        }
+
+        .delete-button {
+            background-color: #333;
+        }
+
+        .delete-button:hover {
+            background-color: #333;
+        }
+
+        .empty-cart-message {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .empty-cart-message p {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a class="headerItem" href="/user/homePage">Home</a></li>
+            <li><a class="headerItem" href="/user/payment">My Purchases</a></li>
+            <li><a class="headerItem" href="/user/favorite">Favorites</a></li>
+            <li><a class="headerItem" href="/user/cart">Cart</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Categories</a>
+                <div class="dropdown-content" id="categoryDropdown">
+                    <% categories.forEach(category => { %>
+                        <a class="headerItem" href="/user/category/<%= category.category_id %>"><%= category.category_name %></a>
+                    <% }); %>
+                </div>
+            </li>
+            <li><a href="/auth/logout" class="headerItem">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+<div class="cart-container">
+    <% if (FavoriteItems.length > 0) { %>
+        <% FavoriteItems.forEach(favoriteItem => { %>
+            <div class="favorite-item" id="favoriteItem-<%= favoriteItem.favorite_id %>">
+                <% if (favoriteItem) { %>
+                    <img src="/uploads/static/<%= favoriteItem.image_url %>" alt="<%= favoriteItem.title %>">
+                    <h3><%= favoriteItem.title %></h3>
+                    <button class="delete-button" onclick="deleteFavoriteItem(<%= favoriteItem.favorite_id %>)">Delete</button>
+                <% } else { %>
+                    <p>This item is no longer available.</p>
+                <% } %>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <div class="empty-cart-message">
+            <p>Your favorite list is empty.</p>
+        </div>
+    <% } %>
+</div>
+</body>
+<script>
+    function deleteFavoriteItem(favoriteItemID) {
+        const favoriteItem = document.getElementById(`favoriteItem-${favoriteItemID}`);
+        fetch(`/user/favorite/${favoriteItemID}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete item');
+                }
+                favoriteItem.classList.add('fade-and-shrink');
+                setTimeout(() => {
+                    favoriteItem.remove();
+                }, 500);
+            })
+            .catch(error => {
+                console.error('Error deleting item:', error);
+            });
+    }
+
+</script>
+</html>

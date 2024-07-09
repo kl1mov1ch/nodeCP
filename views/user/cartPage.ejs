@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Cart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .empty-cart-message {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .empty-cart-message p {
+            font-size: 18px;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #222;
+            color: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        nav li {
+            padding: 10px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: #333;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #333;
+            min-width: 160px;
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .cart-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .cart-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cart-item img {
+            max-width: 100px;
+            height: auto;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .cart-item h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .cart-item p {
+            margin: 5px 0;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .quantity-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-buttons button {
+            background-color: #333333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .quantity-buttons button:hover {
+            background-color: #333333;
+        }
+
+        .delete-button {
+            background-color: #333;
+        }
+
+        input[type="email"],
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        /* Стили для текста в модальном окне */
+        .modal-content h2,
+        .modal-content label {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        /* Стили для вертикального выравнивания */
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Дополнительные стили для кнопки в модальном окне */
+        .modal-content button {
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-content button:hover {
+            background-color: #333;
+        }
+
+        .delete-button:hover {
+            background-color: #333;
+        }
+        .purchase-all-button {
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .purchase-all-button:hover {
+            background-color: #333;
+        }
+
+        /* Стили для модального окна покупки */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a class="headerItem" href="/user/homePage">Home</a></li>
+            <li><a class="headerItem" href="/user/payment">My Purchases</a></li>
+            <li><a class="headerItem" href="/user/favorite">Favorites</a></li>
+            <li><a class="headerItem" href="/user/cart">Cart</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Categories</a>
+                <div class="dropdown-content" id="categoryDropdown">
+                    <% categories.forEach(category => { %>
+                        <a class="headerItem" href="/user/category/<%= category.category_id %>"><%= category.category_name %></a>
+                    <% }); %>
+                </div>
+            </li>
+            <li><a href="/auth/logout" class="headerItem">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+<div class="cart-container">
+    <% if (cartItems.length > 0) { %>
+        <% cartItems.forEach(cartItem => { %>
+            <div class="cart-item" id="cart-item-<%= cartItem.item_id %>">
+                <% const clothingItem = clothingCart.find(item => item.clothing_id === cartItem.ClothingClothingId); %>
+                <% if (clothingItem) { %>
+                    <img src="/uploads/static/<%= clothingItem.image_url %>" alt="<%= clothingItem.title %>">
+                    <h3><%= clothingItem.title %></h3>
+                    <% if (clothingItem.price) { %>
+                        <p>Price: $<%= parseFloat(clothingItem.price).toFixed(2) %></p> <!-- Display price if available -->
+                    <% } else { %>
+                        <p>Price: N/A</p>
+                    <% } %>
+                    <div class="quantity-buttons">
+                        <button class="decrease-button" onclick="decreaseQuantity(<%= cartItem.item_id %>)">-</button>
+                        <p id="quantity-<%= cartItem.item_id %>"><%= cartItem.quantity %></p>
+                        <button class="increase-button" onclick="increaseQuantity(<%= cartItem.item_id %>)">+</button>
+                        <button class="delete-button" onclick="deleteCartItem(<%= cartItem.item_id %>)">Delete</button>
+                        <button class="purchase-button" data-item-id="<%= cartItem.item_id %>">Purchase</button>
+                    </div>
+                <% } else { %>
+                    <p>This item is no longer available.</p>
+                <% } %>
+            </div>
+        <% }); %>
+            <button onclick="purchaseAllItems()" class="purchase-all-button">Purchase All Items</button>
+        <p>Total Amount: <span id="totalAmount">$0.00</span></p>
+    <% } else { %>
+        <div class="empty-cart-message">
+            <p>Your cart is empty.</p>
+        </div>
+    <% } %>
+</div>
+    <div id="purchase-form-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Enter your details</h2>
+            <form id="purchase-form">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" required></textarea>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    function updateTotalAmount() {
+        fetch('/user/cart/totalAmount')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch total amount');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const totalAmountElement = document.getElementById('totalAmount');
+                if (totalAmountElement) {
+                    totalAmountElement.textContent = '$' + data.totalAmount.toFixed(2);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating total amount:', error);
+            });
+    }
+    updateTotalAmount();
+
+
+    //уменьшение
+    function decreaseQuantity(cartItemId) {
+        fetch(`/user/cart/decrease/${cartItemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to decrease quantity');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.quantity === 0) {
+                    document.getElementById(`cart-item-${cartItemId}`).remove();
+                } else {
+                    let quantityElement = document.getElementById(`quantity-${cartItemId}`);
+                    if (quantityElement) {
+                        quantityElement.textContent = `${data.quantity}`;
+                    } else {
+                        let newQuantityElement = document.createElement("p");
+                        newQuantityElement.id = `quantity-${cartItemId}`;
+                        newQuantityElement.textContent = `${data.quantity}`;
+                        let parentElement = document.querySelector('.quantity-buttons');
+                        parentElement.appendChild(newQuantityElement);
+                    }
+                    updateTotalAmount();
+                }
+                updatePurchaseAllButtonVisibility();
+                if (document.querySelectorAll('.cart-item').length === 0) {
+                    location.reload(); // Перезагрузка страницы, если нет больше товаров
+                }
+            })
+            .catch(error => {
+                console.error('Error decreasing quantity:', error);
+            });
+    }
+
+    //увеличение
+    function increaseQuantity(cartItemId) {
+        fetch(`/user/cart/increase/${cartItemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to increase quantity');
+                }
+                return response.json();
+            })
+            .then(data => {
+                let quantityElement = document.getElementById(`quantity-${cartItemId}`);
+                if (quantityElement) {
+                    quantityElement.textContent = data.quantity;
+                } else {
+                    let newQuantityElement = document.createElement("p");
+                    newQuantityElement.id = `quantity-${cartItemId}`;
+                    newQuantityElement.textContent = `${data.quantity}`;
+                    let parentElement = document.querySelector('.quantity-buttons');
+                    parentElement.appendChild(newQuantityElement);
+                }
+                updateTotalAmount();
+            })
+            .catch(error => {
+                console.error('Error increasing quantity:', error);
+            });
+    }
+
+    //удаление
+    function deleteCartItem(cartItemId) {
+        fetch(`/user/cart/${cartItemId}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete item');
+                }
+                document.getElementById(`cart-item-${cartItemId}`).remove();
+                updateTotalAmount();
+                if (document.querySelectorAll('.cart-item').length === 0) {
+                    location.reload(); // Перезагрузка страницы, если нет больше товаров
+                }
+                updatePurchaseAllButtonVisibility();
+            })
+            .catch(error => {
+                console.error('Error deleting item:', error);
+            });
+    }
+
+
+
+    // Покупка всех товаров
+    function purchaseAllItems() {
+        fetch(`/user/cart/purchase/all`, {
+            method: 'POST'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to purchase all items');
+                }
+                return response.text();
+            })
+            .then(message => {
+                alert(message);
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error purchasing all items:', error);
+                alert('Failed to purchase all items. Please try again later.');
+            });
+    }
+
+    const modal = document.getElementById('purchase-form-modal');
+    const btns = document.querySelectorAll('.purchase-button');
+    const closeBtn = document.querySelector('.close');
+
+    function openModal() {
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    // Event Listeners
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            openModal();
+            const itemId = btn.getAttribute('data-item-id');
+            document.getElementById('purchase-form').setAttribute('data-item-id', itemId);
+        });
+    });
+
+    closeBtn.addEventListener('click', () => {
+        closeModal();
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+
+    document.getElementById('purchase-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const itemId = document.getElementById('purchase-form').getAttribute('data-item-id');
+        const formData = new FormData(document.getElementById('purchase-form'));
+console.log(itemId);
+        formData.append('itemId', itemId);
+
+        fetch(`/user/cart/purchase/item`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(Object.fromEntries(formData.entries()))
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to purchase item');
+                }
+                return response.text();
+            })
+            .then(message => {
+                alert(message);
+                closeModal();
+                location.reload(); // Reload the page after successful purchase
+            })
+            .catch(error => {
+                console.error('Error purchasing item:', error);
+                alert('Failed to purchase item. Please try again later.');
+            });
+    });
+    function updatePurchaseAllButtonVisibility() {
+        const purchaseAllButton = document.querySelector('.purchase-all-button');
+        const cartContainer = document.querySelector('.cart-container');
+
+        if (cartContainer && cartContainer.children.length > 1) { // Проверяем наличие товаров в корзине
+            purchaseAllButton.removeAttribute('disabled');
+        } else {
+            purchaseAllButton.setAttribute('disabled', true);
+        }
+    }
+
+    // Вызываем функцию для обновления видимости кнопки при загрузке страницы
+    updatePurchaseAllButtonVisibility();
+</script>
+
+</html>

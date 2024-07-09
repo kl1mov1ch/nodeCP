@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.4.0/socket.io.min.js" integrity="sha384-1fOn6VtTq3PWwfsOrk45LnYcGosJwzMHv+Xh/Jx5303FVOXzEnw0EpLv30mtjmlj" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 2em;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        nav {
+            background-color: #222;
+            color: #fff;
+            padding: 10px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        li {
+            padding: 10px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .headerItem:hover {
+            background-color: #333;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #333;
+            min-width: 160px;
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .clothing-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .clothing-card {
+            background-color: #fff;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            margin: 20px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .clothing-card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .clothing-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .clothing-card h3 {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .clothing-card p {
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .clothing-card form {
+            margin-top: 10px;
+        }
+
+        .clothing-card a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .clothing-card a:hover {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .sizes {
+            display: grid;
+            color: #333;
+            grid-template-columns: repeat(auto-fill, 30px);
+            width: 60%;
+            grid-gap: 4px;
+            margin-left: 20px;
+            margin-top: 5px;
+        }
+
+        .notification-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 50px;
+            padding: 5px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .notification-button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .notification-panel {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            z-index: 1000;
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: none;
+        }
+
+        .notification-panel.active {
+            display: block;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            50% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+
+        .pick {
+            margin-top: 11px;
+            margin-bottom: 0;
+            margin-left: 20px;
+        }
+
+        .size {
+            padding: 9px;
+            border: 1px solid #f4f4f4;
+            font-size: 0.7em;
+            text-align: center;
+        }
+
+        .size:hover {
+            background: #333;
+            color: #fff;
+            transition: all 0.4s ease-in-out;
+        }
+
+        .focus {
+            background: #333;
+            color: #fff;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            padding: 10px;
+        }
+
+        footer p {
+            letter-spacing: 3px;
+        }
+
+        footer a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #7d7d7d;
+        }
+
+        .procuctCart{
+            text-decoration: none;
+        }
+
+        button {
+            display: inline-block;
+            background-color: black;
+            color: white;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            position: relative;
+            z-index: 0;
+            width: 100%;
+            height: 56px;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #222222;
+            letter-spacing: 3px;
+        }
+
+
+        .heart {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: white;
+            stroke-width: 2;
+            transition: fill 0.3s ease;
+        }
+
+        .heart-button:hover .heart {
+            fill: white;
+        }
+
+        .cart {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            transition: fill 0.3s ease;
+        }
+
+        .button_add:hover .cart {
+            fill: white;
+        }
+
+        .heart-red {
+            fill: red;
+        }
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination a {
+            display: inline-block;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: black;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+        }
+
+        .pagination a.active {
+            background-color: #333;
+            color: white;
+            border: 1px solid #333;
+        }
+
+        .pagination a:hover:not(.active) {
+            background-color: #ddd;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            50% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <ul>
+        <li><a class="headerItem" href="/user/homePage">Home</a></li>
+        <li><a class="headerItem" href="/user/payment">My Purchases</a></li>
+        <li><a class="headerItem" href="/user/favorite">Favorites</a></li>
+        <li><a class="headerItem" href="/user/cart">Cart</a></li>
+        <li class="dropdown">
+            <a href="#" class="dropbtn">Categories</a>
+            <div class="dropdown-content" id="categoryDropdown">
+                <% categories.forEach(category => { %>
+                    <a class="headerItem" href="/user/category/<%= category.category_id %>"><%= category.category_name %></a>
+                <% }); %>
+            </div>
+        </li>
+        <li><a href="/auth/logout" class="headerItem">Logout</a></li>
+    </ul>
+</nav>
+
+<div class="clothing-container">
+    <% clothingList.forEach(clothing => { %>
+        <div class="clothing-card">
+            <a class="procuctCart" href="/user/clothing/<%= clothing.clothing_id %>">
+                <img src="/uploads/static/<%= clothing.image_url %>" alt="<%= clothing.title %>">
+                <h3><%= clothing.title %></h3>
+                <p><%= clothing.description %></p>
+                <p>$<%= parseFloat(clothing.price).toFixed(2) %></p>
+            </a>
+            <div class="buttons">
+                <button class="button_add" onclick="addToCart(<%= clothing.clothing_id %>)">
+                    <svg class = "cart" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l.84 4.479 9.144-.459L13.89 4H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" fill="white"></path>
+                    </svg>
+                </button>
+
+                <button class="heart-button" onclick="addToFavorite(<%= clothing.clothing_id %>)">
+                    <svg id="heart-<%= clothing.clothing_id %>" class="heart" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.77-3.4 6.86-8.55 11.55L12 21.35z"/>
+                    </svg>
+                </button>
+
+            </div>
+        </div>
+    <% }); %>
+</div>
+<svg id="notification-button" class="notification-button" onclick="toggleNotificationPanel()" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <g id="bell">
+        <path d="M29.78,24.37l-3.65-4.48L26,12a1,1,0,0,0,0-.16C24.85,5.58,21.21,2,16,2,10.5,2,6.08,6,5,11.82A1,1,0,0,0,5,12l-.13,8L2.14,24.48a1,1,0,0,0,0,1A1,1,0,0,0,3,26h9a4,4,0,0,0,8,0h9a1,1,0,0,0,.9-.57A1,1,0,0,0,29.78,24.37ZM16,28a2,2,0,0,1-2-2h4A2,2,0,0,1,16,28ZM4.77,24l2-3.24a1,1,0,0,0,.14-.5L7,12.1C7.91,7.25,11.52,4,16,4c5.63,0,7.43,5,8,8.1l.14,8.16a1,1,0,0,0,.22.62L26.9,24Z"/>
+    </g>
+</svg>
+
+<div id="notification-panel" class="notification-panel">
+    <% notifications.forEach(notification => { %>
+        <div class="notification-item" data-id="<%= notification.notification_id %>">
+            <span><%= notification.message %></span>
+            <button onclick="deleteNotification(<%= notification.notification_id %>)">Delete</button>
+        </div>
+    <% }); %>
+</div>
+
+<div class="pagination">
+    <% for(let i = 1; i <= totalPages; i++) { %>
+        <a href="/user/homePage?page=<%= i %>" class="<%= currentPage == i ? 'active' : '' %>"><%= i %></a>
+    <% } %>
+</div>
+<script>
+    let notificationShaking = false;
+    const socket = io();
+
+        socket.on("message:receive", (payload) => {
+            updateNotificationList();
+            shakeNotificationButton();
+
+        });
+
+
+
+    function shakeNotificationButton() {
+        const notificationButton = document.getElementById('notification-button');
+        notificationButton.classList.add('shake');
+        notificationShaking = true;
+        setTimeout(() => {
+            notificationButton.classList.remove('shake');
+            notificationShaking = false;
+        }, 500);
+    }
+    function stopShakeNotificationButton() {
+        notificationShaking = false;
+    }
+
+    function updateNotificationList() {
+        fetch('/user/notifications')
+            .then(response => response.json()) // Преобразуем ответ в JSON
+            .then(data => {
+                const notifications = data.notifications;
+                const notificationContainer = document.getElementById('notification-panel');
+                notificationContainer.innerHTML = '';
+                notifications.forEach(notification => {
+                    const notificationItem = document.createElement('div');
+                    notificationItem.classList.add('notification-item');
+                    notificationItem.setAttribute('data-id', notification.notification_id); // Устанавливаем data-id для идентификации уведомления
+                    const messageSpan = document.createElement('span');
+                    messageSpan.textContent = notification.message;
+                    notificationItem.appendChild(messageSpan);
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.addEventListener('click', () => deleteNotification(notification.notification_id)); // Добавляем обработчик события на кнопку "Удалить"
+                    notificationItem.appendChild(deleteButton);
+                    notificationContainer.appendChild(notificationItem);
+                });
+            })
+            .catch(error => console.error('Error updating notification list:', error));
+    }
+
+        function deleteNotification(notification_id) {
+            fetch(`/user/notification/delete/${notification_id}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        const notificationItem = document.querySelector(`[data-id="${notification_id}"]`);
+                        if (notificationItem) {
+                            notificationItem.remove();
+                        }
+                    } else {
+                        console.error('Failed to delete notification');
+                    }
+                })
+                .catch(error => console.error('Error deleting notification:', error));
+        }
+
+    function toggleNotificationPanel() {
+        const notificationPanel = document.getElementById('notification-panel');
+        notificationPanel.classList.toggle('active');
+
+        if (notificationPanel.classList.contains('active')) {
+            stopShakeNotificationButton();
+        }
+    }
+
+        function toggleMessageList() {
+        const messageList = document.getElementById('message-list');
+        if (messageList.style.display === 'none') {
+            messageList.style.display = 'block';
+        } else {
+            messageList.style.display = 'none';
+        }
+    }
+
+    function addToCart(itemId) {
+        fetch('/user/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                itemId: itemId,
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+
+                } else {
+                    alert('Failed to add item to cart. Please try again later.');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding item to cart:', error);
+                alert('An error occurred while adding the item to cart. Please try again later.');
+            });
+    }
+
+    function addToFavorite(itemId) {
+        fetch('/user/favorite/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                itemId: itemId,
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('heart-' + itemId).classList.add('heart-red');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding item to favorite:', error);
+                alert('An error occurred while adding the item to favorite. Please try again later.');
+            });
+    }
+</script>
+<script src="https://cdn.socket.io/4.4.0/socket.io.min.js" integrity="sha384-1fOn6VtTq3PWwfsOrk45LnYcGosJwzMHv+Xh/Jx5303FVOXzEnw0EpLv30mtjmlj" crossorigin="anonymous"></script>
+</body>
+</html>

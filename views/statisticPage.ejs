@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .purchases-container {
+            margin-top: 50px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .purchase-item {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .purchase-item p {
+            margin: 5px 0;
+        }
+
+        canvas {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Sales Statistics</h1>
+<canvas id="salesByAmount"></canvas>
+<div class="purchases-container">
+    <% paymentItems.forEach(purchase => { %>
+        <div class="purchase-item">
+            <p><strong>Date:</strong> <%= purchase.payment_date.toLocaleDateString() %> <%= purchase.payment_date.toLocaleTimeString() %></p>
+            <p><strong>Total Amount:</strong> <%= parseFloat(purchase.amount).toFixed(2) %></p>
+        </div>
+    <% }); %>
+</div>
+
+<script>
+    var salesByAmountCtx = document.getElementById('salesByAmount').getContext('2d');
+    var salesByAmountChart = new Chart(salesByAmountCtx, {
+        type: 'line',
+        data: {
+            labels: [<% paymentItems.forEach(payment => { %>'<%= payment.payment_date.toLocaleDateString() %>', <% }); %>],
+            datasets: [{
+                label: 'Sales by Amount',
+                data: [<% paymentItems.forEach(payment => { %><%= payment.amount %>, <% }); %>],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+</script>
+</body>
+</html>

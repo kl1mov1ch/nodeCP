@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.socket.io/4.4.0/socket.io.min.js" integrity="sha384-1fOn6VtTq3PWwfsOrk45LnYcGosJwzMHv+Xh/Jx5303FVOXzEnw0EpLv30mtjmlj" crossorigin="anonymous"></script>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 2em;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px; /* Добавим небольшое отступ снизу */
+        }
+
+        .dashboard-button {
+            display: inline-block;
+            background-color: black;
+            color: white;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .dashboard-button:hover {
+            background-color: #222222;
+        }
+
+        .clothing-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .clothing-card {
+            background-color: #fff;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            margin: 20px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .clothing-card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .clothing-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .clothing-card h3 {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .clothing-card p {
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .clothing-card form {
+            margin-top: 10px;
+        }
+
+        button {
+            display: inline-block;
+            background-color: black;
+            color: white;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            position: relative;
+            z-index: 0;
+            width: 100%;
+            height: 56px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        button:hover {
+            background-color: #222222;
+            letter-spacing: 6px;
+        }
+    </style>
+</head>
+<body>
+<h1>Admin Dashboard</h1>
+<div class="button-container">
+    <form action="/admin/add-clothing" method="get">
+        <button class="dashboard-button" type="submit">Add New Clothing</button>
+    </form>
+
+    <form action="/admin/add-category" method="get">
+        <button class="dashboard-button" type="submit">Add New Category</button>
+    </form>
+    <form action="/admin/statistic" method="get">
+        <button class="dashboard-button" type="submit">Statistic</button>
+    </form>
+    <form  id="notificationMessage">
+        <input id="notification" placeholder="Enter notification message"/>
+        <button class="button" type="submit">Send Notification</button>
+    </form>
+</div>
+<div class="clothing-container">
+    <% clothingList.forEach(clothing => { %>
+        <div class="clothing-card">
+            <img src="/uploads/static/<%= clothing.image_url %>" alt="<%= clothing.title %>">
+
+            <h3><%= clothing.title %></h3>
+            <p><%= clothing.description %></p>
+            <p>$<%= parseFloat(clothing.price).toFixed(2) %></p>
+            <form action="/admin/edit-clothing/<%= clothing.clothing_id %>" method="get">
+                <button type="submit">Edit</button>
+            </form>
+            <form action="/admin/delete-clothing/<%= clothing.clothing_id %>" method="post" id="delete-form">
+                <button type="submit">Delete</button>
+            </form>
+
+        </div>
+    <% }); %>
+</div>
+</body>
+<script>
+    const form = document.getElementById('notificationMessage');
+    const input = document.getElementById('notification');
+
+    form.addEventListener("submit", (e) => {
+        if (input.value === '') {
+            input.value = "";
+            return;
+        }
+        else {
+            e.preventDefault();
+            socket.emit("message:send", { message: input.value });
+            input.value = "";
+        }
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function sendNotification() {
+        const message = document.getElementById('notificationMessage').value;
+        fetch('/admin/sendNotification', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Notification sent successfully');
+                } else {
+                    console.error('Failed to send notification');
+                }
+            })
+            .catch(error => {
+                console.error('Error sending notification:', error);
+            });
+    }
+
+        const socket = io();
+        function sendNotification() {
+        const message = document.getElementById('notificationMessage').value;
+        socket.emit('sendNotification', message);
+    }
+</script>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Clothing</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 2em;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 50%;
+            margin: auto;
+        }
+
+        .button-container {
+            width: 80%;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-button {
+            display: inline-block;
+            background-color: black;
+            color: white;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .dashboard-button:hover {
+            background-color: #222;
+        }
+
+        form {
+            width: 80%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+            color: #333;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        select {
+            background-color: black;
+            color: #ccc;
+        }
+
+        button[type="submit"],
+        button {
+            display: inline-block;
+            background-color: black;
+            color: white;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            height: 56px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        button[type="submit"]:hover,
+        button:hover {
+            background-color: #222;
+            letter-spacing: 6px;
+        }
+        input[type="file"] {
+            width: calc(100% - 34px);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .file-label {
+            display: inline-block;
+            background-color: black;
+            color: white;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 20%;
+            text-align: center;
+        }
+
+        .file-label:hover {
+            background-color: #222;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Add New Clothing</h1>
+    <form action="/admin/add-clothing" method="post" enctype="multipart/form-data">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required><br>
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" required><br>
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" step="0.01" required min="0" max="9999"><br>
+        <input type="file" id="image" name="image" accept="image/*" required>
+        <label class="file-label" for="image">Browse</label><br>
+        <label for="categoryId">Category:</label>
+        <select id="categoryId" name="category_id" required>
+            <% categories.forEach(category => { %>
+                <option value="<%= category.category_id %>"><%= category.category_name %></option>
+            <% }); %>
+        </select><br>
+        <div class="button-container">
+            <button class="dashboard-button" type="submit">Add Clothing</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
